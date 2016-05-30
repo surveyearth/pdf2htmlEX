@@ -99,7 +99,7 @@ void ffw_finalize(void)
 
 long ffw_get_version(void)
 {
-    return FONTFORGE_VERSIONDATE_RAW;
+    return library_version_configuration.library_source_versiondate;
 }
 
 void ffw_new_font()

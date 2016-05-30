@@ -43,7 +43,7 @@ $css
 # compatibility.min.js, extracted from PDF.js
 # To support old browsers like IE9
 #TEST_IGNORE_BEGIN
-@compatibility.min.js
+@compatibility.js
 #TEST_IGNORE_END
 
 # entry point of pdf2htmlEX.Viewer

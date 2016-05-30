@@ -10,8 +10,8 @@ import subprocess
 class Common(object):
     SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     TEST_DIR = os.path.join(SRC_DIR, 'test')
-    DATA_DIR = os.path.join(SRC_DIR, 'share')
-    PDF2HTMLEX_PATH = os.path.join(SRC_DIR, 'pdf2htmlEX')
+    DATA_DIR = os.getenv('PDF2HTMLEX_SHARE', os.path.join(SRC_DIR, 'share'))
+    PDF2HTMLEX_PATH = os.getenv('PDF2HTMLEX_EXECUTABLE', os.path.join(SRC_DIR, 'pdf2htmlEX'))
 
     SAVE_TMP = bool(os.environ.get('P2H_TEST_SAVE_TMP'))
     GENERATING_MODE = bool(os.environ.get('P2H_TEST_GEN'))
@@ -90,8 +90,7 @@ if __name__ == '__main__':
 
     all_modules = []
     all_modules.append(__import__('test_output'))
-    all_modules.append(__import__('test_local_browser'))
-    all_classes = ['test_output', 'test_local_browser']
+    all_classes = ['test_output']
 
     if bool(os.environ.get('P2H_TEST_REMOTE')):
         m = __import__('test_remote_browser')
