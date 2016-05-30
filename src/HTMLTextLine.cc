@@ -14,6 +14,9 @@
 #include "util/encoding.h"
 #include "util/css_const.h"
 
+#include <fstream>
+extern std::ofstream json_file;
+
 namespace pdf2htmlEX {
 
 using std::min;
@@ -25,9 +28,10 @@ using std::endl;
 using std::find;
 using std::abs;
 
-HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & param, AllStateManager & all_manager) 
+
+HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & param, AllStateManager & all_manager)
     :param(param)
-    ,all_manager(all_manager) 
+    ,all_manager(all_manager)
     ,line_state(line_state)
     ,clip_x1(0)
     ,clip_y1(0)
@@ -36,7 +40,7 @@ HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & para
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l, double width)
 {
-    if (l == 1) 
+    if (l == 1)
         text.push_back(min(u[0], (unsigned)INT_MAX));
     else if (l > 1)
     {
@@ -106,6 +110,7 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
     {
         for (int i = 0; i < len; i++)
             dump_char(out, begin + i);
+        cerr << endl;
         return;
     }
 
@@ -135,10 +140,13 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
     }
     if (invisible_group_open)
         out << "</span>";
+
+    cerr << endl;
 }
 
 void HTMLTextLine::dump_text(ostream & out)
 {
+    bool has_element = false;
     /*
      * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
@@ -155,7 +163,8 @@ void HTMLTextLine::dump_text(ostream & out)
     // Start Output
     {
         // open <div> for the current text line
-        out << "<div class=\"" << CSS::LINE_CN
+        out << endl
+            << "<div class=\"" << CSS::LINE_CN
             << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(line_state.transform_matrix)
             << " " << CSS::LEFT_CN             << all_manager.left.install(line_state.x - clip_x1)
             << " " << CSS::HEIGHT_CN           << all_manager.height.install(ascent)
@@ -164,12 +173,17 @@ void HTMLTextLine::dump_text(ostream & out)
         // it will be closed by the first state
     }
 
+    /* Leaving the json block open for more attributes */
+
+
+
     std::vector<State*> stack;
     // a special safeguard in the bottom
     stack.push_back(nullptr);
 
     //accumulated horizontal offset;
     double dx = 0;
+    double acc = 0;
 
     // whenever a negative offset appears, we should not pop out that <span>
     // otherwise the effect of negative margin-left would disappear
@@ -177,12 +191,12 @@ void HTMLTextLine::dump_text(ostream & out)
     size_t cur_text_idx = 0;
 
     auto cur_offset_iter = offsets.begin();
-    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
-            state_iter1 != states.end(); 
+    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++;
+            state_iter1 != states.end();
             ++state_iter1, ++state_iter2)
     {
         // export current state, find a closest parent
-        { 
+        {
             // greedy
             double vertical_align = state_iter1->vertical_align;
             int best_cost = State::HASH_ID_COUNT + 1;
@@ -213,7 +227,30 @@ void HTMLTextLine::dump_text(ostream & out)
 
                 vertical_align += (*iter)->vertical_align;
             }
-            // 
+            // state_iter1 points to the best state.
+            // Lets get all the data out.
+            if (has_element) json_file << "," << endl;
+            has_element = true;
+            json_file << "{" << endl
+                      << "\"transform\": ["
+                      << line_state.transform_matrix[0] << ", "
+                      << -line_state.transform_matrix[1] << ", "
+                      << -line_state.transform_matrix[2] << ", "
+                      << line_state.transform_matrix[3] << "], " << endl //TODO Include two last
+                      << "\"x\": " << line_state.x << ", " << endl
+                      << "\"y\": " << line_state.y << ", " << endl
+                      << "\"ascent\": " << ascent << ", " << endl
+                      << "\"clip_x\": " << clip_x1 << ", " << endl
+                      << "\"clip_y\": " << clip_y1 << ", " << endl;
+
+            json_file << "\"font_size\": " << state_iter1->font_size << ", " << endl;
+            json_file << "\"fill_color\": " << "\"" << state_iter1->fill_color << "\"" << ", " << endl;
+            json_file << "\"stroke_color\": " << "\"" << state_iter1->stroke_color << "\"" << ", " << endl;
+            json_file << "\"letter_space\": " << state_iter1->letter_space << ", " << endl;
+            json_file << "\"word_space\": " << state_iter1->word_space << ", " << endl;
+            json_file << "\"vertical_align\": " << state_iter1->vertical_align << ", " << endl;
+            json_file << "\"font_id\": " << state_iter1->font_info->id << ", " << endl;
+
             state_iter1->ids[State::VERTICAL_ALIGN_ID] = all_manager.vertical_align.install(state_iter1->vertical_align);
             // export the diff between *state_iter1 and stack.back()
             state_iter1->begin(out, stack.back());
@@ -223,10 +260,12 @@ void HTMLTextLine::dump_text(ostream & out)
         // [state_iter1->start_idx, text_idx2) are covered by the current state
         size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
+        json_file << "\"text\": \"";
+
         // dump all text and offsets before next state
         while(true)
         {
-            if((cur_offset_iter != offsets.end()) 
+            if((cur_offset_iter != offsets.end())
                     && (cur_offset_iter->start_idx <= cur_text_idx))
             {
                 if(cur_offset_iter->start_idx > text_idx2)
@@ -236,7 +275,7 @@ void HTMLTextLine::dump_text(ostream & out)
                 double actual_offset = 0;
 
                 //ignore near-zero offsets
-                if(std::abs(target) <= param.h_eps)
+                if(std::abs(target) <= param.h_eps || true)
                 {
                     actual_offset = 0;
                 }
@@ -259,7 +298,7 @@ void HTMLTextLine::dump_text(ostream & out)
                     // finally, just dump it
                     if(!done)
                     {
-                        long long wid = all_manager.whitespace.install(target, &actual_offset);
+                        long long wid = all_manager.whitespace.install(target, &actual_offset); // returns actual offset (after installing?)
 
                         if(!equal(actual_offset, 0))
                         {
@@ -270,9 +309,12 @@ void HTMLTextLine::dump_text(ostream & out)
 
                             out << "<span class=\"" << CSS::WHITESPACE_CN
                                 << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+
                         }
                     }
                 }
+                acc += cur_offset_iter->width;
+
                 dx = target - actual_offset;
                 ++ cur_offset_iter;
             }
@@ -285,9 +327,16 @@ void HTMLTextLine::dump_text(ostream & out)
                 if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
                     next_text_idx = cur_offset_iter->start_idx;
                 dump_chars(out, cur_text_idx, next_text_idx - cur_text_idx);
+                // Dump text to json
+                for (unsigned int i = 0; i < next_text_idx - cur_text_idx; i++) {
+                    if (text[cur_text_idx+i] == 10)  { json_file << "@"; continue; }
+                    json_file << (char) text[cur_text_idx+i];
+                }
                 cur_text_idx = next_text_idx;
             }
         }
+        json_file << "\"" << endl;
+        json_file << "}" << endl;
     }
 
     // we have a nullptr in the bottom
@@ -370,7 +419,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
     // for optimization, we need accurate values
     auto & ls_manager = all_manager.letter_space;
     auto & ws_manager = all_manager.word_space;
-    
+
     // statistics of widths
     std::map<double, size_t> width_map;
     // store optimized offsets
@@ -378,8 +427,8 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
     new_offsets.reserve(offsets.size());
 
     auto offset_iter1 = offsets.begin();
-    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
-            state_iter1 != states.end(); 
+    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++;
+            state_iter1 != states.end();
             ++state_iter1, ++state_iter2)
     {
         const size_t text_idx1 = state_iter1->start_idx;
@@ -387,7 +436,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
         size_t text_count = text_idx2 - text_idx1;
 
         // there might be some offsets before the first state
-        while((offset_iter1 != offsets.end()) 
+        while((offset_iter1 != offsets.end())
                 && (offset_iter1->start_idx <= text_idx1))
         {
             new_offsets.push_back(*(offset_iter1++));
@@ -400,11 +449,11 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
         // There are `offset_count` <span>'s, the target is to reduce this number
         size_t offset_count = offset_iter2 - offset_iter1;
         assert(text_count >= offset_count);
-        
+
         // Optimize letter space
         // how much letter_space is changed
         // will be later used for optimizing word space
-        double letter_space_diff = 0; 
+        double letter_space_diff = 0;
         width_map.clear();
 
         // In some PDF files all letter spaces are implemented as position shifts between each letter
@@ -428,7 +477,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
                     width_map.insert(iter, std::make_pair(target, 1));
                 }
             }
-            
+
             // TODO snapping the widths may result a better result
             // e.g. for (-0.7 0.6 -0.2 0.3 10 10), 0 is better than 10
             double most_used_width = 0;
@@ -444,7 +493,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
 
             // negative letter space may cause problems
             if((max_count <= text_count / 2) || (!is_positive(state_iter1->letter_space + most_used_width)))
-            { 
+            {
                 // the old value is the best
                 // just copy old offsets
                 new_offsets.insert(new_offsets.end(), offset_iter1, offset_iter2);
@@ -452,13 +501,13 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
             else
             {
                 // now we would like to adjust letter space to most_used width
-                
+
                 // install new letter space
                 const double old_ls = state_iter1->letter_space;
                 state_iter1->ids[State::LETTER_SPACE_ID] = ls_manager.install(old_ls + most_used_width, &(state_iter1->letter_space));
                 letter_space_diff = old_ls - state_iter1->letter_space;
                 // update offsets
-                auto off_iter = offset_iter1; 
+                auto off_iter = offset_iter1;
                 // re-count number of offsets
                 offset_count = 0;
                 for(size_t cur_text_idx = text_idx1; cur_text_idx < text_idx2; ++cur_text_idx)
@@ -483,7 +532,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
         }
 
         // Optimize word space
-        
+
         // In some PDF files all spaces are converted into positioning shift
         // We may try to change (some of) them to ' ' by adjusting word_space
         // for now, we consider only the no-space scenario
@@ -497,7 +546,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
             // if there is not any space, we may change the value of word_space arbitrarily
             // note that we may only change word space, no offset will be affected
             // The actual effect will emerge during flushing, where it could be detected that an offset can be optimized as a single space character
-            
+
             if(offset_count > 0)
             {
                 double threshold = (state_iter1->em_size()) * (param.space_threshold);
@@ -529,8 +578,8 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
             }
         }
         offset_iter1 = offset_iter2;
-    } 
-    
+    }
+
     // apply optimization
     std::swap(offsets, new_offsets);
 
@@ -544,7 +593,7 @@ void HTMLTextLine::optimize_aggressive(std::vector<HTMLTextLine*> & lines)
     HTMLLineState original_line_state = line_state;
     // break the line if there are a large (positive or negative) shift
     // letter space / word space are not taken into consideration (yet)
-    while(true) 
+    while(true)
     {
     }
 
@@ -574,7 +623,7 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
 
                 // otherwise
                 // we have to inherit it
-                ids[i] = prev_state->ids[i]; 
+                ids[i] = prev_state->ids[i];
                 hash_umask &= (~cur_mask);
                 //copy the corresponding value
                 //TODO: this is so ugly
@@ -596,14 +645,14 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
             }
 
             // now we care about the ID
-            
+
             // if the value from prev_state is the same, we don't need to dump it
             if((!(prev_state->hash_umask & cur_mask)) && (prev_state->ids[i] == ids[i]))
                 continue;
 
             // so we have to dump it
             if(first)
-            { 
+            {
                 out << "<span class=\"";
                 first = false;
             }
@@ -624,7 +673,7 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
         {
             // so we have to dump it
             if(first)
-            { 
+            {
                 out << "<span class=\"";
                 first = false;
             }
@@ -658,6 +707,7 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
         // which means this is the first state of the line
         // there should be a open pending <div> left there
         // it is not necessary to output vertical align
+
         long long cur_mask = 0xff;
         for(int i = 0; i < HASH_ID_COUNT; ++i, cur_mask<<=8)
         {
@@ -665,14 +715,16 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
                 continue;
 
             // now we care about the ID
-            out << ' '; 
+            out << ' ';
             // out should have hex set
             out << css_class_names[i];
             if (ids[i] == -1)
                 out << CSS::INVALID_ID;
-            else
+            else {
                 out << ids[i];
+            }
         }
+
 
         out << "\">";
         need_close = false;
@@ -698,7 +750,7 @@ int HTMLTextLine::State::diff(const State & s) const
 {
     /*
      * A quick check based on hash_value
-     * it could be wrong when there are more then 256 classes, 
+     * it could be wrong when there are more then 256 classes,
      * in which case the output may not be optimal, but still 'correct' in terms of HTML
      */
     long long common_mask = ~(hash_umask | s.hash_umask);

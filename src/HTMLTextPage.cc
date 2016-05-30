@@ -9,6 +9,10 @@
 #include "HTMLTextPage.h"
 #include "util/css_const.h"
 
+#include <fstream>
+using namespace std;
+extern std::ofstream json_file;
+
 namespace pdf2htmlEX {
 
 using std::ostream;
@@ -19,7 +23,7 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     , cur_line(nullptr)
     , page_width(0)
     , page_height(0)
-{ } 
+{ }
 
 HTMLTextPage::~HTMLTextPage()
 {
@@ -29,6 +33,9 @@ HTMLTextPage::~HTMLTextPage()
 
 void HTMLTextPage::dump_text(ostream & out)
 {
+    bool has_block = false;
+    json_file << "[" << endl;
+
     if(param.optimize_text)
     {
         // text lines may be split during optimization, collect them
@@ -76,6 +83,8 @@ void HTMLTextPage::dump_text(ostream & out)
                 {
                     (*text_line_iter)->clip(cs);
                 }
+                if (has_block) json_file << ",";
+                has_block = true;
                 (*text_line_iter)->dump_text(out);
                 ++text_line_iter;
             }
@@ -92,6 +101,7 @@ void HTMLTextPage::dump_text(ostream & out)
                     && equal(page_width, cs.xmax) && equal(page_height, cs.ymax));
         }
     }
+    json_file << "]" << endl;
 }
 
 void HTMLTextPage::dump_css(ostream & out)
@@ -141,7 +151,7 @@ void HTMLTextPage::optimize(void)
 {
     //TODO
     //group lines with same x-axis
-    //collect common states 
+    //collect common states
 }
 
 } // namespace pdf2htmlEX
