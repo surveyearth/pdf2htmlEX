@@ -1,0 +1,15 @@
+[{
+    "text": "Hello, world",
+    "x": 50,
+    "y": 50,
+    "size": 25,
+    "font": "serif",
+    "transform": [1, 0, 0, 1, 0, 0]
+}, {
+    "text": "Hi again",
+    "x": 50,
+    "y": 100,
+    "size": 12,
+    "font": "\"Vast Shadow\"",
+    "transform": [2, 0.5, 0, 2, 0, 0]
+}]
