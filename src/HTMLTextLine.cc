@@ -110,7 +110,6 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
     {
         for (int i = 0; i < len; i++)
             dump_char(out, begin + i);
-        cerr << endl;
         return;
     }
 
@@ -141,7 +140,6 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
     if (invisible_group_open)
         out << "</span>";
 
-    cerr << endl;
 }
 
 void HTMLTextLine::dump_text(ostream & out)
@@ -329,8 +327,13 @@ void HTMLTextLine::dump_text(ostream & out)
                 dump_chars(out, cur_text_idx, next_text_idx - cur_text_idx);
                 // Dump text to json
                 for (unsigned int i = 0; i < next_text_idx - cur_text_idx; i++) {
-                    if (text[cur_text_idx+i] == 10)  { json_file << "@"; continue; }
-                    json_file << (char) text[cur_text_idx+i];
+                    char c = (char) text[cur_text_idx+i];
+                    if (c >= ' ')
+                        json_file << c;
+                    //2c ee80
+                    //if ((char) text[cur_text_idx+i] < ' ')  { json_file << "@"; continue; }
+                    //writeJSON(json_file, std::string((const char*)(&text[cur_text_idx]), (size_t) (next_text_idx - cur_text_idx)));
+                    //json_file << (char) text[cur_text_idx+i];
                 }
                 cur_text_idx = next_text_idx;
             }
