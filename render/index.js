@@ -5,6 +5,8 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d', { alpha: false });
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+var fonts = {};
+
 function draw(img, textboxes) {
     // Fit canvas to image
     canvas.width = img.width;
@@ -19,19 +21,27 @@ function draw(img, textboxes) {
     ctx.scale(img.width/pdfWidth, img.height/pdfHeight);
 
     textboxes.forEach(function(textbox) {
+        if (fonts[textbox.font_id] === undefined) {
+            var css = "@font-face {" + [
+                'font-family: "f' + textbox.font_id + '";',
+                'src: url("bs15_3/f' + textbox.font_id + '.woff")',
+                'format("woff");'
+            ].join(' ') + "}";
+            var style = document.createElement('style');
+            style.type = "text/css";
+            style.appendChild(document.createTextNode(css));
+            document.getElementsByTagName('head')[0].appendChild(style);
+            fonts[textbox.font_id] = null;
+        }
+
         ctx.save();
 
-        // ctx.transform(1, 0, 0, 1, textbox.x, 842 - textbox.y);
-        // var magicX = 32;
-        // var magicY = 90;
-        var magicX = 0;
-        var magicY = 0;
         var ctm = [
             textbox.transform[0],
             textbox.transform[1],
             textbox.transform[2],
             textbox.transform[3],
-            textbox.x + magicX, pdfHeight - magicY - textbox.y
+            textbox.x, pdfHeight - textbox.y
         ];
         ctx.transform.apply(ctx, ctm);
         ctx.font = textbox.font_size + 'px f' + textbox.font_id;
@@ -75,6 +85,7 @@ var textboxesPromise = fetch(JSON_FILE).then(function(rsp) {
 Promise.all([imagePromise, textboxesPromise]).then(function(values) {
     var img = values[0];
     var textboxes = values[1];
+    draw(img, textboxes);
     setInterval(function() {
         draw(img, textboxes);
     }, 1000);
