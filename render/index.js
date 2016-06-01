@@ -20,6 +20,8 @@ function draw(img, textboxes) {
     var pdfWidth = 481.89, pdfHeight = 680.31;
     ctx.scale(img.width/pdfWidth, img.height/pdfHeight);
 
+    var previousWidth = 0;
+
     textboxes.forEach(function(textbox) {
         if (fonts[textbox.font_id] === undefined) {
             var css = "@font-face {" + [
@@ -36,19 +38,26 @@ function draw(img, textboxes) {
 
         ctx.save();
 
-        var ctm = [
+        if (!textbox.append) {
+            previousWidth = 0;
+        }
+
+        ctx.transform(
             textbox.transform[0],
             textbox.transform[1],
             textbox.transform[2],
             textbox.transform[3],
             textbox.x, pdfHeight - textbox.y
-        ];
-        ctx.transform.apply(ctx, ctm);
+        );
+        ctx.transform(1, 0, 0, 1, previousWidth, 0);
         ctx.font = textbox.font_size + 'px f' + textbox.font_id;
         ctx.fillStyle = textbox.fill_color;
         ctx.fillText(textbox.text, 0, 0);
         ctx.strokeStyle = textbox.stroke_color;
         ctx.strokeText(textbox.text, 0, 0);
+
+        metrics = ctx.measureText(textbox.text);
+        previousWidth += metrics.width;
 
         ctx.restore();
     });
