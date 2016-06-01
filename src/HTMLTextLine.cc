@@ -14,6 +14,7 @@
 #include "util/encoding.h"
 #include "util/css_const.h"
 
+#include <iomanip>
 #include <fstream>
 extern std::ofstream json_file;
 
@@ -142,6 +143,7 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
 
 }
 
+
 void HTMLTextLine::dump_text(ostream & out)
 {
     bool has_element = false;
@@ -239,15 +241,16 @@ void HTMLTextLine::dump_text(ostream & out)
                       << "\"y\": " << line_state.y << ", " << endl
                       << "\"ascent\": " << ascent << ", " << endl
                       << "\"clip_x\": " << clip_x1 << ", " << endl
-                      << "\"clip_y\": " << clip_y1 << ", " << endl;
+                      << "\"clip_y\": " << clip_y1 << ", " << endl
 
-            json_file << "\"font_size\": " << state_iter1->font_size << ", " << endl;
-            json_file << "\"fill_color\": " << "\"" << state_iter1->fill_color << "\"" << ", " << endl;
-            json_file << "\"stroke_color\": " << "\"" << state_iter1->stroke_color << "\"" << ", " << endl;
-            json_file << "\"letter_space\": " << state_iter1->letter_space << ", " << endl;
-            json_file << "\"word_space\": " << state_iter1->word_space << ", " << endl;
-            json_file << "\"vertical_align\": " << state_iter1->vertical_align << ", " << endl;
-            json_file << "\"font_id\": " << state_iter1->font_info->id << ", " << endl;
+                      << "\"font_size\": " << state_iter1->font_size << ", " << endl
+                      << "\"fill_color\": " << "\"" << state_iter1->fill_color << "\"" << ", " << endl
+                      << "\"stroke_color\": " << "\"" << state_iter1->stroke_color << "\"" << ", " << endl
+                      << "\"letter_space\": " << state_iter1->letter_space << ", " << endl
+                      << "\"word_space\": " << state_iter1->word_space << ", " << endl
+                      << "\"vertical_align\": " << state_iter1->vertical_align << ", " << endl
+                      << "\"font_id\": " << state_iter1->font_info->id << ", " << endl
+                      << "\"append\": " << std::boolalpha << (cur_text_idx > 0) << ", " << endl;
 
             state_iter1->ids[State::VERTICAL_ALIGN_ID] = all_manager.vertical_align.install(state_iter1->vertical_align);
             // export the diff between *state_iter1 and stack.back()
@@ -326,16 +329,14 @@ void HTMLTextLine::dump_text(ostream & out)
                     next_text_idx = cur_offset_iter->start_idx;
                 dump_chars(out, cur_text_idx, next_text_idx - cur_text_idx);
                 // Dump text to json
-                for (unsigned int i = 0; i < next_text_idx - cur_text_idx; i++) {
-                    char c = (char) text[cur_text_idx+i];
-                    if (c >= ' ')
-                        json_file << c;
-                    //2c ee80
-                    //if ((char) text[cur_text_idx+i] < ' ')  { json_file << "@"; continue; }
-                    //writeJSON(json_file, std::string((const char*)(&text[cur_text_idx]), (size_t) (next_text_idx - cur_text_idx)));
-                    //json_file << (char) text[cur_text_idx+i];
+                while (cur_text_idx < next_text_idx) {
+                    if (text[cur_text_idx] <= 127) {
+                        json_file << (char) text[cur_text_idx];
+                    } else {
+                        json_file << "\\u" << std::hex << std::setw(4) << std::setfill('0') << text[cur_text_idx];
+                    }
+                    cur_text_idx++;
                 }
-                cur_text_idx = next_text_idx;
             }
         }
         json_file << "\"" << endl;

@@ -13,6 +13,7 @@
 "word_space": 0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
+"append": false, 
 "text": "For kicks. For adventure. For the soul. "
 }
 ,{
@@ -29,7 +30,8 @@
 "word_space": -0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "The reasons we ride are as varied as the placeswe ride "
+"append": false, 
+"text": "The reasons we ride are as varied as the places\ue00awe ride "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -45,7 +47,8 @@
 "word_space": 0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "through. Thousands of miles arecovered in the next hundred "
+"append": false, 
+"text": "through. Thousands of miles are\ue00acovered in the next hundred "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -61,6 +64,7 @@
 "word_space": 0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
+"append": false, 
 "text": "pages: our brave writers journey underground and back in "
 }
 ,{
@@ -77,7 +81,8 @@
 "word_space": 0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "time,through America, across the Balkans, over the Alps "
+"append": false, 
+"text": "time,\ue00athrough America, across the Balkans, over the Alps "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -93,7 +98,8 @@
 "word_space": -0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "andthe Himalayas and on around the world. Twice. But "
+"append": false, 
+"text": "and\ue00athe Himalayas and on around the world. Twice. But "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -109,7 +115,8 @@
 "word_space": 0.3636, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "for allthese vast distances, the greatest journey they each "
+"append": false, 
+"text": "for all\ue00athese vast distances, the greatest journey they each "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -125,7 +132,8 @@
 "word_space": 0.7272, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "makeisin the mind, as the wheels spin, theheart expands "
+"append": false, 
+"text": "make\ue00ais\ue00ain the mind, as the wheels spin, the\ue00aheart expands "
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -141,7 +149,8 @@
 "word_space": 0.7272, 
 "vertical_align": 0, 
 "font_id": 1, 
-"text": "andthe self unwindstoa distant horizon..."
+"append": false, 
+"text": "and\ue00athe self unwinds\ue00ato\ue00aa distant horizon..."
 }
 ,{
 "transform": [0.25, -0, -0, 0.25], 
@@ -157,6 +166,7 @@
 "word_space": 0.5656, 
 "vertical_align": 0, 
 "font_id": 1, 
+"append": false, 
 "text": "Welcome to issue #15 "
 }
 ,{
@@ -173,6 +183,7 @@
 "word_space": 0, 
 "vertical_align": 0, 
 "font_id": 2, 
+"append": false, 
 "text": "BS15-PAGES-3P.indd   111/09/2014   16:13"
 }
 ,{
@@ -189,6 +200,7 @@
 "word_space": 0.637726, 
 "vertical_align": 0, 
 "font_id": 3, 
+"append": false, 
 "text": "Boneshaker: Real Cycling"
 }
 ,{
@@ -205,7 +217,8 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
-"text": "Except this isnt real, of course, its digital. To "
+"append": false, 
+"text": "Except this isn\u2019t real, of course, it\u2019s digital. To "
 }
 ,{
 "transform": [0.249229, -0.019615, 0.019615, 0.249229], 
@@ -221,6 +234,7 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "get your hands on a real Boneshaker, to feel "
 }
 ,{
@@ -237,6 +251,7 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "it and smell it and hide it in your pannier, go "
 }
 ,{
@@ -253,6 +268,7 @@
 "word_space": 0.794702, 
 "vertical_align": 0, 
 "font_id": 3, 
+"append": false, 
 "text": "here"
 }
 ,
@@ -270,6 +286,7 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": true, 
 "text": ". We make other great bike stuff too, "
 }
 ,{
@@ -286,6 +303,7 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "especially bicycle art prints. Check them "
 }
 ,{
@@ -302,6 +320,7 @@
 "word_space": 0, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": " "
 }
 ,{
@@ -318,6 +337,7 @@
 "word_space": 1.0596, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "out "
 }
 ,{
@@ -334,6 +354,7 @@
 "word_space": 0.794702, 
 "vertical_align": 0, 
 "font_id": 3, 
+"append": false, 
 "text": "here"
 }
 ,
@@ -351,6 +372,7 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": true, 
 "text": ". And to let your ears take "
 }
 ,{
@@ -367,6 +389,7 @@
 "word_space": 0, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": " "
 }
 ,{
@@ -383,7 +406,8 @@
 "word_space": 0.883002, 
 "vertical_align": 0, 
 "font_id": 4, 
-"text": "your mind on a journey, theres our "
+"append": false, 
+"text": "your mind on a journey, there\u2019s our "
 }
 ,{
 "transform": [0.249229, -0.019615, 0.019615, 0.249229], 
@@ -399,6 +423,7 @@
 "word_space": 0, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": " "
 }
 ,{
@@ -415,6 +440,7 @@
 "word_space": 1.6777, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "new "
 }
 ,
@@ -432,6 +458,7 @@
 "word_space": 0.529801, 
 "vertical_align": 0, 
 "font_id": 3, 
+"append": true, 
 "text": "podcast series"
 }
 ,{
@@ -448,6 +475,7 @@
 "word_space": 0, 
 "vertical_align": 0, 
 "font_id": 4, 
+"append": false, 
 "text": "."
 }
 ]
