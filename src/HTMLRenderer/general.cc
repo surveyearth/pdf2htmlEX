@@ -8,6 +8,8 @@
 
 #include <cstdio>
 #include <ostream>
+#include <fstream>
+#include <sstream>
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -29,17 +31,22 @@
 #include "util/css_const.h"
 #include "util/encoding.h"
 
+std::ofstream json_file;
+
 namespace pdf2htmlEX {
 
 using std::fixed;
 using std::flush;
 using std::ostream;
+using std::ofstream;
+using std::ostringstream;
 using std::max;
 using std::min_element;
 using std::vector;
 using std::abs;
 using std::cerr;
 using std::endl;
+
 
 HTMLRenderer::HTMLRenderer(const Param & param)
     :OutputDev()
@@ -119,6 +126,10 @@ void HTMLRenderer::process(PDFDoc *doc)
     int page_count = (param.last_page - param.first_page + 1);
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
+        ostringstream path;
+        path << param.dest_dir << "/text" << i << ".json";
+        json_file.open(path.str());
+
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
             cerr << "Stop processing, reach max size\n";
             break;
@@ -152,6 +163,8 @@ void HTMLRenderer::process(PDFDoc *doc)
             delete f_curpage;
             f_curpage = nullptr;
         }
+
+        json_file.close();
     }
     if(page_count >= 0)
         cerr << "Working: " << page_count << "/" << page_count;
@@ -242,7 +255,7 @@ void HTMLRenderer::endPage() {
     // process form
     if(param.process_form)
         process_form(*f_curpage);
-    
+
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
@@ -384,7 +397,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
-    
+
     // close files if they opened
     if (param.process_outline)
     {

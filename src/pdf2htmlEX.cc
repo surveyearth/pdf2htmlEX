@@ -46,8 +46,6 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-ofstream json_file;
-
 void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
@@ -375,7 +373,6 @@ int main(int argc, char **argv)
 
     //prepare the directories
     prepare_directories();
-    json_file.open(string(param.dest_dir) + "/text.json");
 
     if(param.debug)
         cerr << "temporary dir: " << (param.tmp_dir) << endl;
@@ -443,7 +440,6 @@ int main(int argc, char **argv)
     // check for memory leaks
     Object::memCheck(stderr);
     gMemReport(stderr);
-    json_file.close();
 
     exit(finished ? (EXIT_SUCCESS) : (EXIT_FAILURE));
 

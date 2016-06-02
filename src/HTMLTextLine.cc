@@ -249,7 +249,7 @@ void HTMLTextLine::dump_text(ostream & out)
                       << "\"letter_space\": " << state_iter1->letter_space << ", " << endl
                       << "\"word_space\": " << state_iter1->word_space << ", " << endl
                       << "\"vertical_align\": " << state_iter1->vertical_align << ", " << endl
-                      << "\"font_id\": " << state_iter1->font_info->id << ", " << endl
+                      << "\"font_id\": \"" << state_iter1->font_info->id << "\", " << endl
                       << "\"append\": " << std::boolalpha << (cur_text_idx > 0) << ", " << endl;
 
             state_iter1->ids[State::VERTICAL_ALIGN_ID] = all_manager.vertical_align.install(state_iter1->vertical_align);
