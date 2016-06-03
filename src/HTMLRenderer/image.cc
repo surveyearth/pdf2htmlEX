@@ -48,7 +48,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
     }
 
     png_write_view((format("i%|1$x|.png")%image_count).str(), imgview);
-    
+
     img_stream->close();
     delete img_stream;
 

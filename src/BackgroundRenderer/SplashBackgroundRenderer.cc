@@ -18,6 +18,10 @@
 #include "util/const.h"
 
 #include "SplashBackgroundRenderer.h"
+#include <fstream>
+using namespace std;
+extern std::ofstream json_file;
+
 
 namespace pdf2htmlEX {
 
@@ -74,7 +78,7 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR using a Type 3 font while param.process_type3 is not enabled
     // - OR the text is used as path
     if((param.fallback || param.proof)
-       || ( (state->getFont()) 
+       || ( (state->getFont())
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
                  || (state->getRender() >= 4)
@@ -135,7 +139,7 @@ bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     drawn_char_count = 0;
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
-            0, 
+            0,
             (!(param.use_cropbox)),
             false, false,
             nullptr, nullptr, &annot_cb, &process_annotation);
@@ -164,13 +168,20 @@ void SplashBackgroundRenderer::embed_image(int pageno)
 
         auto & f_page = *(html_renderer->f_curpage);
         auto & all_manager = html_renderer->all_manager;
-        
-        f_page << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
+
+        f_page << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN
             << " " << CSS::LEFT_CN      << all_manager.left.install(((double)xmin) * h_scale)
             << " " << CSS::BOTTOM_CN    << all_manager.bottom.install(((double)getBitmapHeight() - 1 - ymax) * v_scale)
             << " " << CSS::WIDTH_CN     << all_manager.width.install(((double)(xmax - xmin + 1)) * h_scale)
             << " " << CSS::HEIGHT_CN    << all_manager.height.install(((double)(ymax - ymin + 1)) * v_scale)
             << "\" alt=\"\" src=\"";
+
+        json_file << "  \"image\": { " << endl
+                  << "    \"x\": " << ((double)xmin) * h_scale << endl
+                  << "    \"y\": " << ((double)getBitmapHeight() - 1 - ymax) * v_scale << endl
+                  << "    \"width\": " << ((double)(xmax - xmin + 1)) * h_scale << endl
+                  << "    \"height\": " << ((double)(ymax - ymin + 1)) * v_scale << endl
+                  << "  }," << endl;
 
         if(param.embed_image)
         {
@@ -229,7 +240,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
         throw "Cannot initialize image writer";
-        
+
     auto * bitmap = getBitmap();
     assert(bitmap->getMode() == splashModeRGB8);
 
@@ -244,8 +255,8 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
         pointers.push_back(p);
         p += row_size;
     }
-    
-    if(!writer->writePointers(pointers.data(), height)) 
+
+    if(!writer->writePointers(pointers.data(), height))
     {
         throw "Cannot write background image";
     }

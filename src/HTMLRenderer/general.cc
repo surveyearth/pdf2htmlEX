@@ -216,6 +216,12 @@ void HTMLRenderer::endPage() {
             << " " << CSS::HEIGHT_CN << hid
             << "\">";
 
+    json_file << "{ " << endl
+              << "  \"page\": { " << endl
+              << "    \"width\": " << html_text_page.get_width() << endl
+              << "    \"height\": " << html_text_page.get_width() << endl
+              << "  }," << endl;
+
     /*
      * When split_pages is on, f_curpage points to the current page file
      * and we want to output empty frames in f_pages.fs
@@ -287,6 +293,8 @@ void HTMLRenderer::endPage() {
     {
         f_pages.fs << "</div>" << endl;
     }
+
+    json_file << "}" << endl;
 }
 
 void HTMLRenderer::pre_process(PDFDoc * doc)

@@ -34,7 +34,7 @@ HTMLTextPage::~HTMLTextPage()
 void HTMLTextPage::dump_text(ostream & out)
 {
     bool has_block = false;
-    json_file << "[" << endl;
+    json_file << "  \"text\": [" << endl;
 
     if(param.optimize_text)
     {
