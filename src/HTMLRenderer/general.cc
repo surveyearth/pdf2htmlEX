@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <vector>
 #include <functional>
-
+#include <iomanip>
 #include <GlobalParams.h>
 
 #include "pdf2htmlEX-config.h"
@@ -129,6 +129,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         ostringstream path;
         path << param.dest_dir << "/text" << i << ".json";
         json_file.open(path.str());
+        json_file << std::setprecision(5);
 
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
             cerr << "Stop processing, reach max size\n";
