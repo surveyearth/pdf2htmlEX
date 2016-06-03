@@ -177,9 +177,9 @@ void SplashBackgroundRenderer::embed_image(int pageno)
             << "\" alt=\"\" src=\"";
 
         json_file << "  \"image\": { " << endl
-                  << "    \"x\": " << ((double)xmin) * h_scale << endl
-                  << "    \"y\": " << ((double)getBitmapHeight() - 1 - ymax) * v_scale << endl
-                  << "    \"width\": " << ((double)(xmax - xmin + 1)) * h_scale << endl
+                  << "    \"x\": " << ((double)xmin) * h_scale << ", " << endl
+                  << "    \"y\": " << ((double)getBitmapHeight() - 1 - ymax) * v_scale << ", " << endl
+                  << "    \"width\": " << ((double)(xmax - xmin + 1)) * h_scale << ", " << endl
                   << "    \"height\": " << ((double)(ymax - ymin + 1)) * v_scale << endl
                   << "  }," << endl;
 

@@ -218,7 +218,7 @@ void HTMLRenderer::endPage() {
 
     json_file << "{ " << endl
               << "  \"page\": { " << endl
-              << "    \"width\": " << html_text_page.get_width() << endl
+              << "    \"width\": " << html_text_page.get_width() << "," << endl
               << "    \"height\": " << html_text_page.get_height() << endl
               << "  }," << endl;
 
